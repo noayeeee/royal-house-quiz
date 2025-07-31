@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Royal House Quiz - Find Your Noble House</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Crimson Text', serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: #f4f4f4;
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 40px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 3em;
+            font-weight: 700;
+            color: #d4af37;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            color: #e6e6e6;
+            font-style: italic;
+        }
+        
+        .question-container {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+        
+        .question-container:hover {
+            background: rgba(255, 255, 255, 0.12);
+            transform: translateY(-2px);
+        }
+        
+        .question {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.4em;
+            font-weight: 600;
+            color: #d4af37;
+            margin-bottom: 20px;
+        }
+        
+        .answers {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .answer {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 15px 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.1em;
+        }
+        
+        .answer:hover {
+            background: rgba(212, 175, 55, 0.1);
+            border-color: rgba(212, 175, 55, 0.3);
+            transform: translateX(5px);
+        }
+        
+        .answer.selected {
+            background: rgba(212, 175, 55, 0.2);
+            border-color: #d4af37;
+            color: #d4af37;
+        }
+        
+        .submit-btn {
+            background: linear-gradient(45deg, #d4af37, #f4d03f);
+            color: #1a1a2e;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.2em;
+            font-weight: 600;
+            border-radius: 25px;
+            cursor: pointer;
+            display: block;
+            margin: 40px auto;
+            transition: all 0.3s ease;
+            font-family: 'Playfair Display', serif;
+        }
+        
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(212, 175, 55, 0.3);
+        }
+        
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .result {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            border: 2px solid #d4af37;
+            backdrop-filter: blur(15px);
+        }
+        
+        .result h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5em;
+            color: #d4af37;
+            margin-bottom: 20px;
+        }
+        
+        .result h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8em;
+            color: #e6e6e6;
+            margin-bottom: 25px;
+            font-style: italic;
+        }
+        
+        .result p {
+            font-size: 1.2em;
+            line-height: 1.8;
+            color: #f4f4f4;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .progress-bar {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            height: 6px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+        
+        .progress {
+            background: linear-gradient(45deg, #d4af37, #f4d03f);
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.3s ease;
+        }
+        
+        @media (max-width: 600px) {
+            .header h1 {
+                font-size: 2.2em;
+            }
+            
+            .container {
+                padding: 15px;
+            }
+            
+            .question-container {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Royal House Quiz</h1>
+            <p>Discover which noble house claims your allegiance</p>
+        </div>
+        
+        <div id="quiz-container">
+            <div class="progress-bar">
+                <div class="progress" id="progress"></div>
+            </div>
+            
+            <div id="questions"></div>
+            
+            <button class="submit-btn" id="submit-btn" onclick="calculateResult()" disabled>
+                Reveal My House
+            </button>
+        </div>
+        
+        <div id="result-container" class="hidden">
+            <div class="result" id="result"></div>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                question: "When trouble strikes at court, what's your first move?",
+                answers: [
+                    { text: "Keep quiet and gather secrets", house: "valmont" },
+                    { text: "Make a dazzling entrance and steer the gossip", house: "navarro" },
+                    { text: "Let your elegance do the talking", house: "de_mireille" },
+                    { text: "Pull strings behind velvet drapes", house: "volkov" }
+                ]
+            },
+            {
+                question: "Your name appears in the scandal pages. What's the headline?",
+                answers: [
+                    { text: "Serpent in silk: whispers swirl around Valmont heir", house: "valmont" },
+                    { text: "Masked ball mayhem: Solé scandal steals the night", house: "sole" },
+                    { text: "Poetry or poison? Bellarosa beauty stuns the ton", house: "bellarosa" },
+                    { text: "Secret meeting caught in bloom — the Beaulieu affair", house: "beaulieu" }
+                ]
+            },
+            {
+                question: "A royal suitor requests your company. You reply:",
+                answers: [
+                    { text: "With a riddle and a well-placed wink", house: "fairleigh" },
+                    { text: "With a treaty and a warning", house: "sokolov" },
+                    { text: "With a poem penned in midnight ink", house: "ravello" },
+                    { text: "With a smile sharp enough to wound", house: "navarro" }
+                ]
+            },
+            {
+                question: "Your greatest weapon in the capital?",
+                answers: [
+                    { text: "Charm and beauty", house: "de_mireille" },
+                    { text: "Silence and precision", house: "volkov" },
+                    { text: "Loyalty in all the right places", house: "leone" },
+                    { text: "Charisma, fire, and a fan that snaps just so", house: "romero" }
+                ]
+            },
+            {
+                question: "Choose your court attire for the season's grand affair:",
+                answers: [
+                    { text: "Something timeless, tailored, and deadly", house: "valmont" },
+                    { text: "Pearls, pastels, and a practiced smile", house: "fairleigh" },
+                    { text: "Velvet with embroidered roses", house: "bellarosa" },
+                    { text: "Crimson silk and gold to match your temper", house: "navarro" }
+                ]
+            },
+            {
+                question: "They say you never leave home without:",
+                answers: [
+                    { text: "A blade hidden in your boot", house: "de_mireille" },
+                    { text: "A letter opener you call 'diplomacy'", house: "sokolov" },
+                    { text: "A notebook full of rhymes and secrets", house: "ravello" },
+                    { text: "Your mother's lipstick and your father's secrets", house: "orlova" }
+                ]
+            },
+            {
+                question: "Your idea of fun at a royal gala:",
+                answers: [
+                    { text: "Learning everyone's secrets by dessert", house: "valmont" },
+                    { text: "Setting off a duel with just a glance", house: "navarro" },
+                    { text: "Stealing hearts with a slow dance and softer words", house: "bellarosa" },
+                    { text: "Slipping away to the balcony with the wrong person", house: "orlova" }
+                ]
+            },
+            {
+                question: "Your family motto might as well be:",
+                answers: [
+                    { text: "Beauty is a blade", house: "de_mireille" },
+                    { text: "Still waters drown the loud", house: "volkov" },
+                    { text: "Ink runs deeper than blood", house: "bellarosa" },
+                    { text: "Fire leaves no apology", house: "romero" }
+                ]
+            },
+            {
+                question: "You're most likely to fall in love with:",
+                answers: [
+                    { text: "Someone who plays the court better than you", house: "valmont" },
+                    { text: "A tragic artist who writes sonnets in the dark", house: "bellarosa" },
+                    { text: "The person your rivals fear", house: "sokolov" },
+                    { text: "The kindest liar in the ballroom", house: "fairleigh" }
+                ]
+            },
+            {
+                question: "Your legacy will be:",
+                answers: [
+                    { text: "Peace, power, and perfect appearances", house: "valmont" },
+                    { text: "A string of lovers and a crown of ash", house: "navarro" },
+                    { text: "Your name in every love letter for decades", house: "bellarosa" },
+                    { text: "No one knowing how you pulled the strings", house: "volkov" }
+                ]
+            }
+        ];
+
+        const houseResults = {
+            valmont: {
+                name: "House Valmont",
+                subtitle: "The Crowned Serpents",
+                description: "Well well... how rare it is to meet someone who moves with such quiet control and iron will. You've been chosen by the royal house of Valmont. Now, the court shall whisper your name. Post a blog with your answers and tell us why this house fits you best. Include **#housevalmont**"
+            },
+            de_mireille: {
+                name: "House de Mireille",
+                subtitle: "The Gilded Blades",
+                description: "Sharp tongues and sharper instincts have found their home. You belong with house de Mireille, where elegance is matched only by ruthlessness. You wear your beauty like a blade. Post a blog with your answers and why you fit this house. Include **#housedemireille**"
+            },
+            navarro: {
+                name: "House Navarro",
+                subtitle: "The Crimson Flame",
+                description: "You were never meant to be a shadow. Passion burns in your every choice. You belong to house Navarro, where drama is an art and scandal is a game. The ballroom was waiting for someone like you. Post your answers and a blog explaining why. Include **#housenavarro**"
+            },
+            bellarosa: {
+                name: "House Bellarosa",
+                subtitle: "The House of Ink and Ivory",
+                description: "They say still waters run deep — and your presence confirms it. You've been selected by house Bellarosa, where grace, creativity, and secrets entwine. Not all power needs to shout. Write a blog with your answers and explain your fit. Include **#housebellarosa**"
+            },
+            volkov: {
+                name: "House Volkov",
+                subtitle: "The Wolves in Velvet",
+                description: "You walk through the world with quiet calculation. House Volkov has claimed you. This is where elegance meets strategy — and nothing is what it seems. Post a blog with your answers and why this house suits you. Include **#housevolkov**"
+            },
+            fairleigh: {
+                name: "House Fairleigh",
+                subtitle: "Vassal of House de Mireille",
+                description: "The house of Fairleigh knows how to play the room, darling — always one compliment away from control and one glance away from danger. Their elegance is a sharpened blade dressed in velvet. You've been chosen by house Fairleigh. Post your introduction in blog form with the tag #housefairleigh and include the answer you were most proud of. We do so love a bit of flair."
+            },
+            beaulieu: {
+                name: "House Beaulieu",
+                subtitle: "Vassal of House de Mireille",
+                description: "Those of house Beaulieu don't just walk into a room — they arrive. Charming, expressive, and clever with conversation, they've mastered the art of both subtle sabotage and poetic praise. You've been selected by house Beaulieu. Post your answers in a blog and use the tag #housebeaulieu to let the ton know who's caught their eye."
+            },
+            romero: {
+                name: "House Romero",
+                subtitle: "Vassal of House Navarro",
+                description: "Bold and unapologetic, house Romero makes no promises but leaves everyone begging for more. Whispered rumors follow them like a perfume trail — and they like it that way. House Romero claims you as one of their own. Share your quiz result and favorite answer with the hashtag #houseromero. Make it dramatic — they wouldn't have it any other way."
+            },
+            sole: {
+                name: "House Solé",
+                subtitle: "Vassal of House Navarro",
+                description: "If there's mischief to be made, someone from house Solé is already five steps ahead. Glittering with charisma and misdirection, they could sell sunshine in a storm. You belong to house Solé. Write your reveal in blog form, include your favorite question, and post with #housesolé. Just try not to start a scandal too early."
+            },
+            leone: {
+                name: "House Leone",
+                subtitle: "Vassal of House Bellarosa",
+                description: "House Leone lives in daydreams and moonlight — quiet, passionate, and full of quiet rebellion. Their words carry more than poetry; they spark revolutions. Welcome to house Leone. Show us who you are with a blog post using #houseleone and your favorite quiz answer. Be gentle, but don't be dull."
+            },
+            ravello: {
+                name: "House Ravello",
+                subtitle: "Vassal of House Bellarosa",
+                description: "Creative minds, poetic vengeance, and untamed hearts — house Ravello is as beautifully dangerous as a locked diary set aflame. Their hearts may ache, but their minds are razor-sharp. You are of house Ravello. Blog your reveal and include the tag #houseravello. Make it heartfelt. Make it haunting. Make it yours."
+            },
+            sokolov: {
+                name: "House Sokolov",
+                subtitle: "Vassal of House Volkov",
+                description: "House Sokolov doesn't flinch. Their gaze sees through pretenders and their loyalty is absolute — until betrayed. They are the still water that drowns. House Sokolov awaits. Craft your reveal post and use #housesokolov to make your presence known. Steel can still shine, darling."
+            },
+            orlova: {
+                name: "House Orlova",
+                subtitle: "Vassal of House Volkov",
+                description: "House Orlova spins their secrets like spider silk, laced with charm and danger. Strategic, elegant, and utterly unreadable — you never quite know if you're dancing or drowning. House Orlova welcomes you. Share your answers in a blog post with the hashtag #houseorlova. Keep your cards close and your words sharp."
+            }
+        };
+
+        let answers = {};
+        let currentQuestion = 0;
+
+        function initQuiz() {
+            renderQuestions();
+            updateProgress();
+        }
+
+        function renderQuestions() {
+            const questionsContainer = document.getElementById('questions');
+            questionsContainer.innerHTML = '';
+
+            questions.forEach((q, index) => {
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'question-container';
+                questionDiv.innerHTML = `
+                    <div class="question">${index + 1}. ${q.question}</div>
+                    <div class="answers">
+                        ${q.answers.map((answer, answerIndex) => `
+                            <div class="answer" onclick="selectAnswer(${index}, ${answerIndex})" id="q${index}a${answerIndex}">
+                                ${answer.text}
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                questionsContainer.appendChild(questionDiv);
+            });
+        }
+
+        function selectAnswer(questionIndex, answerIndex) {
+            // Remove previous selection
+            const questionContainer = document.querySelectorAll('.question-container')[questionIndex];
+            questionContainer.querySelectorAll('.answer').forEach(answer => {
+                answer.classList.remove('selected');
+            });
+
+            // Add selection to clicked answer
+            document.getElementById(`q${questionIndex}a${answerIndex}`).classList.add('selected');
+            
+            // Store answer
+            answers[questionIndex] = questions[questionIndex].answers[answerIndex].house;
+            
+            // Update progress and check if quiz is complete
+            updateProgress();
+            checkQuizComplete();
+        }
+
+        function updateProgress() {
+            const progress = (Object.keys(answers).length / questions.length) * 100;
+            document.getElementById('progress').style.width = progress + '%';
+        }
+
+        function checkQuizComplete() {
+            const submitBtn = document.getElementById('submit-btn');
+            if (Object.keys(answers).length === questions.length) {
+                submitBtn.disabled = false;
+            } else {
+                submitBtn.disabled = true;
+            }
+        }
+
+        function calculateResult() {
+            // Count house occurrences
+            const houseCounts = {};
+            Object.values(answers).forEach(house => {
+                houseCounts[house] = (houseCounts[house] || 0) + 1;
+            });
+
+            // Find the house with the most points
+            const resultHouse = Object.keys(houseCounts).reduce((a, b) => 
+                houseCounts[a] > houseCounts[b] ? a : b
+            );
+
+            displayResult(resultHouse);
+        }
+
+        function displayResult(house) {
+            const result = houseResults[house];
+            const resultContainer = document.getElementById('result-container');
+            const resultDiv = document.getElementById('result');
+            
+            resultDiv.innerHTML = `
+                <h2>${result.name}</h2>
+                <h3>${result.subtitle}</h3>
+                <p>${result.description}</p>
+            `;
+            
+            document.getElementById('quiz-container').style.display = 'none';
+            resultContainer.classList.remove('hidden');
+            
+            // Scroll to result
+            resultContainer.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Initialize quiz when page loads
+        window.onload = initQuiz;
+    </script>
+</body>
+</html>
